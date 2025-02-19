@@ -11,6 +11,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Buildozer cache törlése
+        run: rm -rf ~/.buildozer
+    
       - name: Repository letöltése
         uses: actions/checkout@v4
 
