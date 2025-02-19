@@ -49,7 +49,7 @@ jobs:
       - name: Licenc feltételek elfogadása
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
         
-      - name: Android SDK és Build-tools telepítése
+      - name: Android SDK és Build-tools telepítése jeeeee
         run: |
           export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
           export ANDROID_SDK_ROOT=$ANDROID_HOME
@@ -63,13 +63,15 @@ jobs:
             mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
           fi
   
-          # Frissítsük és telepítsük az SDK komponenseket
+          # Engedélyezzük az SDK licencfeltételeit
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+  
+          # Telepítjük a szükséges komponenseket
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platform-tools" "platforms;android-34" "build-tools;34.0.0"
   
           # Ellenőrizzük a telepítést
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list
-        
+     
       - name: APK fordítása
         run: buildozer -v android debug
 
