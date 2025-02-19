@@ -28,13 +28,12 @@ jobs:
           sudo apt install -y zip unzip openjdk-17-jdk
           pip install --upgrade pip setuptools wheel cython virtualenv
           pip install buildozer
-
-      - name: python-for-android letöltése és előkészítése
+      
+      - name: Kézi `python-for-android` letöltés és telepítés
         run: |
-          mkdir -p $HOME/.buildozer/android/platform
-          cd $HOME/.buildozer/android/platform
-          git clone --depth 1 https://github.com/kivy/python-for-android.git
-          cd python-for-android
+          mkdir -p ~/.buildozer/android/platform
+          git clone --depth 1 https://github.com/kivy/python-for-android.git ~/.buildozer/android/platform/python-for-android
+          cd ~/.buildozer/android/platform/python-for-android
           git submodule update --init --recursive
           pip install -e .
 
