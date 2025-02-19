@@ -7,25 +7,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📂 Kód letöltése
+      - name: Kód letöltése
         uses: actions/checkout@v4
 
-      - name: 🐍 Python telepítése
+      - name: Python telepítése
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
 
-      - name: 📦 Buildozer és szükséges csomagok telepítése
+      - name: Buildozer és szükséges csomagok telepítése
         run: |
           pip install --upgrade pip
           pip install buildozer cython
 
-      - name: ☕ Java és egyéb függőségek telepítése
+      - name: Java és egyéb függőségek telepítése
         run: |
           sudo apt update
           sudo apt install -y openjdk-17-jdk unzip
 
-      - name: 📲 **Android SDK és cmdline-tools telepítése**
+      - name: Android SDK és cmdline-tools telepítése
         run: |
           export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
           mkdir -p $ANDROID_HOME/cmdline-tools
@@ -35,24 +35,24 @@ jobs:
           mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
           rm tools.zip
 
-      - name: 🔍 Ellenőrizd a cmdline-tools tartalmát
+      - name: Ellenőrizd a cmdline-tools tartalmát
         run: ls -l $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
 
-      - name: 🔧 PATH kiírása hibakereséshez
+      - name: PATH kiírása hibakereséshez
         run: echo $PATH
 
-      - name: 📲 **Build-tools és platformok telepítése**
+      - name: Build-tools és platformok telepítése
         run: |
           export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "build-tools;34.0.0" "platform-tools" "platforms;android-34"
 
-      - name: ✅ Licenc feltételek elfogadása
+      - name: Licenc feltételek elfogadása
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
 
-      - name: 🏗 APK fordítása
+      - name: APK fordítása
         run: buildozer -v android debug
 
-      - name: 📤 APK mentése
+      - name: APK mentése
         uses: actions/upload-artifact@v4
         with:
           name: Kivy-APK
