@@ -25,15 +25,21 @@ jobs:
           sudo apt install -y zip unzip openjdk-17-jdk
           pip install --upgrade pip setuptools wheel cython virtualenv
           pip install buildozer
-          buildozer version  # Ellenőrizzük a telepítést
+
+      - name: `python-for-android` letöltése és előkészítése
+        run: |
+          mkdir -p $HOME/.buildozer/android/platform
+          cd $HOME/.buildozer/android/platform
+          git clone --depth 1 https://github.com/kivy/python-for-android.git
+          cd python-for-android
+          git submodule update --init --recursive
+          pip install -e .
 
       - name: Android SDK és NDK beállítása
         run: |
           export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
           export ANDROID_NDK_HOME=$HOME/.buildozer/android/platform/android-ndk
           export PATH=$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH
-          mkdir -p $ANDROID_HOME
-          mkdir -p $ANDROID_NDK_HOME
 
       - name: Buildozer inicializálása (csak ha szükséges)
         run: |
@@ -42,7 +48,7 @@ jobs:
           fi
           cat buildozer.spec  # Ellenőrizzük a beállításokat
 
-      - name: Python-for-Android letöltése és telepítése
+      - name: Buildozer tisztítása és frissítése
         run: |
           buildozer android clean
           buildozer android update
@@ -56,4 +62,5 @@ jobs:
         with:
           name: kivy-apk
           path: bin/*.apk
+
 
