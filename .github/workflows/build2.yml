@@ -1,99 +1,71 @@
 name: Build Kivy APK
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main  # Vagy az aktuális fejlesztési branch
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Kód letöltése
+      - name: 📥 **Repository letöltése**
         uses: actions/checkout@v4
 
-      - name: Python telepítése
+      - name: 🐍 **Python beállítása**
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
 
-      - name: Buildozer és szükséges csomagok telepítése
-        run: |
-          pip install --upgrade pip
-          pip install buildozer cython
-
-      - name: Java és egyéb függőségek telepítése
+      - name: 📦 **Szükséges csomagok telepítése**
         run: |
           sudo apt update
-          sudo apt install -y openjdk-17-jdk unzip
+          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip
+          pip install --upgrade pip setuptools
+          pip install buildozer cython
 
-      - name: Android SDK és cmdline-tools telepítése
-        run: |
-          export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
-          mkdir -p $ANDROID_HOME/cmdline-tools
-          
-          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O tools.zip
-          unzip tools.zip -d $ANDROID_HOME/cmdline-tools
-          mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
-          rm tools.zip
-
-      - name: Ellenőrizd a cmdline-tools tartalmát
-        run: ls -l $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
-
-      - name: PATH kiírása hibakereséshez
-        run: echo $PATH
-
-      - name: Build-tools és platformok telepítése
-        run: |
-          export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "build-tools;34.0.0" "platform-tools" "platforms;android-34"
-
-      - name: Licenc feltételek elfogadása
-        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-        
-      - name: Android SDK és Build-tools telepítése
+      - name: 🛠 **Beállítjuk az Android SDK elérési útját**
         run: |
           echo "ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk" >> $GITHUB_ENV
           echo "ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform/android-sdk" >> $GITHUB_ENV
-          echo "PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH" >> $GITHUB_ENV          
-  
-          # Ha a cmdline-tools nincs meg, töltsük le és csomagoljuk ki
-          if [ ! -d "$ANDROID_HOME/cmdline-tools/latest" ]; then
-            mkdir -p $ANDROID_HOME/cmdline-tools
-            wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip -O cmdline-tools.zip
-            unzip cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools
-            mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
-          fi
-  
-          # Engedélyezzük az SDK licencfeltételeit
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-  
-          # Telepítjük a szükséges komponenseket
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platform-tools" "platforms;android-34" "build-tools;34.0.0"
-  
-          # Ellenőrizzük a telepítést
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list
-          
-      - name: Ellenőrizd az SDK Manager útvonalát tttttttttttttttttttttttttttttttttttt
+          echo "PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH" >> $GITHUB_ENV
+
+      - name: 📥 **Android Command Line Tools letöltése és telepítése**
         run: |
-          export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
-          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
-  
-          echo "🔍 ANDROID_HOME = $ANDROID_HOME"
-          echo "🔍 Elérhető fájlok:"
-          ls -R $ANDROID_HOME
-  
-          echo "🔍 SDK Manager elérési út teszt:"
-          if [ -f "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
-              echo "✅ sdkmanager létezik!"
-          else
-              echo "❌ sdkmanager NEM található!"
-              exit 1
-          fi
-               
-      - name: APK fordítása
+          mkdir -p $ANDROID_HOME/cmdline-tools
+          wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip -O cmdline-tools.zip
+          unzip cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools
+          mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
+          rm cmdline-tools.zip
+
+      - name: ✅ **Elfogadjuk az Android SDK licenszeket**
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+
+      - name: 📦 **Android SDK komponensek telepítése**
+        run: |
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME \
+            "platform-tools" \
+            "platforms;android-34" \
+            "build-tools;34.0.0" \
+            "ndk;25.2.9519653" \
+            "cmake;3.22.1"
+
+      - name: 📌 **Buildozer környezet inicializálása**
+        run: buildozer init
+
+      - name: 🔧 **Buildozer beállítások ellenőrzése**
+        run: cat buildozer.spec
+
+      - name: 🔄 **Tisztítás és újrafordítás**
+        run: buildozer android clean
+
+      - name: 🚀 **APK fordítása**
         run: buildozer -v android debug
 
-      - name: APK mentése
+      - name: 💾 **APK mentése**
         uses: actions/upload-artifact@v4
         with:
           name: Kivy-APK
           path: bin/*.apk
+
