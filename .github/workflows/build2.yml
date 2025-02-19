@@ -1,0 +1,57 @@
+name: Build Kivy APK
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📂 Kód letöltése
+        uses: actions/checkout@v4
+
+      - name: 🐍 Python telepítése
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: 📦 Buildozer és szükséges csomagok telepítése
+        run: |
+          pip install --upgrade pip
+          pip install buildozer cython
+
+      - name: ☕ Java és egyéb függőségek telepítése
+        run: |
+          sudo apt update
+          sudo apt install -y openjdk-17-jdk unzip
+
+      - name: 📲 Android SDK telepítése és beállítása
+        run: |
+          export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
+          
+          mkdir -p $ANDROID_HOME/cmdline-tools
+          cd $ANDROID_HOME/cmdline-tools
+          
+          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O tools.zip
+          unzip tools.zip -d latest
+          rm tools.zip
+
+      - name: 🔧 **Build-tools telepítése** (HIBA UTÁN KIEGÉSZÍTVE)
+        run: |
+          export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
+          
+          sdkmanager --install "build-tools;34.0.0" "platform-tools" "platforms;android-34"
+
+      - name: ✅ Licenc feltételek elfogadása
+        run: yes | sdkmanager --licenses
+
+      - name: 🏗 APK fordítása
+        run: buildozer -v android debug
+
+      - name: 📤 APK mentése
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kivy-APK
+          path: bin/*.apk
