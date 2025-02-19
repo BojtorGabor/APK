@@ -48,7 +48,28 @@ jobs:
 
       - name: Licenc feltételek elfogadása
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-
+        
+      - name: Android SDK és Build-tools telepítése
+        run: |
+          export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
+          export ANDROID_SDK_ROOT=$ANDROID_HOME
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
+  
+          # Ha a cmdline-tools nincs meg, töltsük le és csomagoljuk ki
+          if [ ! -d "$ANDROID_HOME/cmdline-tools/latest" ]; then
+            mkdir -p $ANDROID_HOME/cmdline-tools
+            wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip -O cmdline-tools.zip
+            unzip cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools
+            mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest
+          fi
+  
+          # Frissítsük és telepítsük az SDK komponenseket
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+  
+          # Ellenőrizzük a telepítést
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list
+        
       - name: APK fordítása
         run: buildozer -v android debug
 
