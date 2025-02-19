@@ -49,7 +49,7 @@ jobs:
       - name: Licenc feltételek elfogadása
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
         
-      - name: Android SDK és Build-tools telepítése jeeeee
+      - name: Android SDK és Build-tools telepítése
         run: |
           export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
           export ANDROID_SDK_ROOT=$ANDROID_HOME
@@ -71,7 +71,24 @@ jobs:
   
           # Ellenőrizzük a telepítést
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list
-     
+          
+      - name: Ellenőrizd az SDK Manager útvonalát
+        run: |
+          export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
+  
+          echo "🔍 ANDROID_HOME = $ANDROID_HOME"
+          echo "🔍 Elérhető fájlok:"
+          ls -R $ANDROID_HOME
+  
+          echo "🔍 SDK Manager elérési út teszt:"
+          if [ -f "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
+              echo "✅ sdkmanager létezik!"
+          else
+              echo "❌ sdkmanager NEM található!"
+              exit 1
+          fi
+               
       - name: APK fordítása
         run: buildozer -v android debug
 
