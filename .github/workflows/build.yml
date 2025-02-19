@@ -26,16 +26,23 @@ jobs:
         run: |
           sudo apt install -y zip unzip openjdk-17-jdk
           pip install buildozer cython virtualenv
+          buildozer version  # Ellenőrizzük a telepítést
+
+      - name: Buildozer inicializálása
+        run: |
+          buildozer init  # Ha még nincs buildozer.spec fájl
+          cat buildozer.spec  # Ellenőrizzük a beállításokat
 
       - name: Android SDK és NDK beállítása
         run: |
           export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
           export ANDROID_NDK_HOME=$HOME/.buildozer/android/platform/android-ndk
           export PATH=$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH
-          buildozer android clean
+          buildozer android clean  # Tisztítjuk az előző build maradványait
 
       - name: APK fordítása
-        run: buildozer -v android debug
+        run: |
+          buildozer -v android debug  # A -v kapcsolóval több információt kapunk a hibákról
 
       - name: APK mentése a workflow eredményei közé
         uses: actions/upload-artifact@v4
