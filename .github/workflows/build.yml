@@ -28,9 +28,11 @@ jobs:
           pip install buildozer cython virtualenv
           buildozer version  # Ellenőrizzük a telepítést
 
-      - name: Buildozer inicializálása
+      - name: Buildozer inicializálása (csak ha szükséges)
         run: |
-          buildozer init  # Ha még nincs buildozer.spec fájl
+          if [ ! -f buildozer.spec ]; then
+            buildozer init
+          fi
           cat buildozer.spec  # Ellenőrizzük a beállításokat
 
       - name: Android SDK és NDK beállítása
