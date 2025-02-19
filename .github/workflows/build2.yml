@@ -51,9 +51,6 @@ jobs:
             "ndk;25.2.9519653" \
             "cmake;3.22.1"
 
-      - name: 📌 **Buildozer környezet inicializálása**
-        run: buildozer init
-
       - name: 🔧 **Buildozer beállítások ellenőrzése**
         run: cat buildozer.spec
 
