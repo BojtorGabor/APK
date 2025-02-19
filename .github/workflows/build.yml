@@ -50,7 +50,19 @@ jobs:
             buildozer init
           fi
           cat buildozer.spec
-
+          
+      - name: AIDL és egyéb hiányzó SDK komponensek telepítése
+        run: |
+          export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH
+          sdkmanager --install "platform-tools" "platforms;android-30" "build-tools;30.0.3" "cmdline-tools;latest"
+          sdkmanager --install "extras;google;m2repository" "extras;android;m2repository"
+          sdkmanager --install "platforms;android-33"
+          sdkmanager --install "build-tools;33.0.2"
+          sdkmanager --install "tools"
+          sdkmanager --install "ndk;21.4.7075529"
+          sdkmanager --install "cmake;3.18.1"
+          
       - name: APK fordítása
         run: buildozer -v android debug
 
