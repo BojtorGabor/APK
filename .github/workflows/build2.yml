@@ -25,19 +25,18 @@ jobs:
           sudo apt update
           sudo apt install -y openjdk-17-jdk unzip
 
-      - name: 📲 Android SDK telepítése és beállítása
+      - name: 📲 **Android SDK és cmdline-tools telepítése**
         run: |
           export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
-          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
-          
-          mkdir -p $ANDROID_HOME/cmdline-tools
-          cd $ANDROID_HOME/cmdline-tools
+          mkdir -p $ANDROID_HOME/cmdline-tools/latest
           
           wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O tools.zip
-          unzip tools.zip -d latest
+          unzip tools.zip -d $ANDROID_HOME/cmdline-tools/latest
           rm tools.zip
 
-      - name: 🔧 **Build-tools telepítése** (HIBA UTÁN KIEGÉSZÍTVE)
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH
+
+      - name: 🔧 **Build-tools és platformok telepítése**
         run: |
           export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
           export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
