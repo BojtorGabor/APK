@@ -1,0 +1,44 @@
+name: Build Kivy APK
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Repository letöltése
+        uses: actions/checkout@v4
+
+      - name: Python és pip frissítése
+        run: |
+          sudo apt update
+          sudo apt install -y python3 python3-pip python3-venv
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip setuptools wheel
+
+      - name: Buildozer és függőségek telepítése
+        run: |
+          sudo apt install -y zip unzip openjdk-17-jdk
+          pip install buildozer cython virtualenv
+
+      - name: Android SDK és NDK beállítása
+        run: |
+          export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
+          export ANDROID_NDK_HOME=$HOME/.buildozer/android/platform/android-ndk
+          export PATH=$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH
+          buildozer android clean
+
+      - name: APK fordítása
+        run: buildozer -v android debug
+
+      - name: APK mentése a workflow eredményei közé
+        uses: actions/upload-artifact@v4
+        with:
+          name: kivy-apk
+          path: bin/*.apk
