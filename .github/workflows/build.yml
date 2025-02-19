@@ -29,13 +29,21 @@ jobs:
           pip install --upgrade pip setuptools wheel cython virtualenv
           pip install buildozer
       
-      - name: Kézi `python-for-android` letöltés és telepítés
+      - name: Kézi python-for-android letöltés és telepítés
         run: |
           mkdir -p ~/.buildozer/android/platform
           git clone --depth 1 https://github.com/kivy/python-for-android.git ~/.buildozer/android/platform/python-for-android
           cd ~/.buildozer/android/platform/python-for-android
           git submodule update --init --recursive
           pip install -e .
+          
+      - name: Buildozer és Android SDK/NDK telepítése
+        run: |
+          sudo apt update
+          sudo apt install -y zip unzip openjdk-17-jdk
+          pip install --upgrade pip setuptools wheel cython virtualenv
+          pip install buildozer
+          buildozer version          
 
       - name: Android SDK és NDK beállítása
         run: |
